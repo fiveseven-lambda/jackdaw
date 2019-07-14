@@ -1,0 +1,1 @@
+void addscore(const String &);
