@@ -11,3 +11,7 @@ std::ostream &operator<<(std::ostream &os, const Pos<Char> &pos){
 	os << "]";
 	return os;
 }
+
+std::ostream &operator<<(std::ostream &os, const Pos<String> &pos){
+	return os << ::pos(pos.str.text.front()) << "-" << ::pos(pos.str.text.back());
+}

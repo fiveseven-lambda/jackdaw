@@ -85,14 +85,11 @@ void Sentence::run(){
 		}
 	}else if(command.match(std::string("import"))){
 		if(arguments.size() == 1){
-			Source source(arguments[0].c_str().get());
-			load(source);
-		}
-	}else if(command.match(std::string("debug"))){
-		if(arguments.size() == 1){
-			for(auto i : arguments[0].text){
-				error_unexpected_character(i);
-			}
+			char *header_filename = arguments[0].c_str();
+			Source *source = new Source(header_filename);
+			delete[] header_filename;
+			load(*source);
+			// memory leaks ><
 		}
 	}else{
 		error_unknown_command(command);

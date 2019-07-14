@@ -1,18 +1,23 @@
 #include "char.h"
 #include "string.h"
 
+#include "pos.h"
+
 bool String::match(const std::string &str) const{
 	if(text.size() != str.size()) return false;
 	for(size_t i = 0; i < text.size(); ++i) if(text[i] != str[i]) return false;
 	return true;
 }
 void String::append(const String &str, const Char &ch){
-	size_t size = text.size();
-	text.resize(size + str.text.size(), ch);
-	for(size_t i = 0; i < str.text.size(); ++i){
-		text[size + i] = str.text[i];
-		text[size + i].add_pos(ch);
+	for(auto i : str.text){
+		text.push_back(i);
+		text.back().add_pos(ch);
 	}
+}
+char *String::c_str(){
+	char *ret = new char[text.size()];
+	for(size_t i = 0; i < text.size(); ++i) ret[i] = text[i];
+	return ret;
 }
 std::ostream &operator<<(std::ostream &os, const String &str){
 	for(Char i : str.text) os << i;
