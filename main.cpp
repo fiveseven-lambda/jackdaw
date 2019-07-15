@@ -7,7 +7,7 @@
 int verbosity;
 
 int main(int argc, char *argv[]){
-	const char *out_filename;
+	const char *out_filename = "a.wav";
 	[&]{ for(;;){
 		int long_optind;
 		static struct option long_options[] = {
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]){
 				out_filename = optarg;
 				break;
 			case 'v':
-				puts("jackdaw version 2.5");
+				puts("jackdaw version 4.1");
 				exit(0);
 			case 'h':
 				puts("usage: jackdaw [-v --version] [-h --help] [-o --out <filename>] [--verbose]");
@@ -59,5 +59,5 @@ int main(int argc, char *argv[]){
 		load(*(new Source(argv[optind])));
 	}
 
-	wav(NULL);
+	wav(out_filename);
 }

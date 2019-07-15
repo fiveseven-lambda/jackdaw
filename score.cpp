@@ -1,3 +1,9 @@
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <cmath>
+#include <cstring>
+#include <complex>
 #include <array>
 #include <vector>
 #include "char.h"
@@ -6,6 +12,8 @@
 #include "score.h"
 
 double end = 0;
+
+extern int verbosity;
 
 struct Note{
 	double freq, vel;
@@ -68,8 +76,9 @@ void addscore(const String &in){
 		}
 	} rhythm;
 
-	for(auto i = in.text.begin(); i != in.text.end(); ++i){
-		switch(*i){
+	for(auto i = in.text.begin();; ++i){
+		char tmp = i != in.text.end() ? *i : ':';
+		switch(tmp){
 			case ' ':
 			case '\n':
 				break;
@@ -111,11 +120,12 @@ void addscore(const String &in){
 				l[index]->add(*i);
 				break;
 			case ',':
+			case ':':
 				score.push_back([&](){
 					double len = *l[1] ? l[1]->get(standard[1]) : rhythm.next(*i);
 					Note ret;
-					ret.freq = l[0]->get(standard[0]);
-					ret.vel = l[2]->get(standard[2]);
+					ret.freq = *l[0] ? l[0]->get(standard[0]) : 0;
+					ret.vel = *l[2] ? l[2]->get(standard[2]) : 0;
 					ret.attack = l[3] && *l[3] ? l[3]->get(len) : 0;
 					ret.decay = l[4] && *l[4] ? l[4]->get(ret.vel) : 0;
 					ret.sustain = l[5] && *l[5] ? l[5]->get(len) : 1;
@@ -124,17 +134,23 @@ void addscore(const String &in){
 					ret.end = cursor += len;
 					return ret;
 				}());
-				for(int i = 0; i < 3; ++i){
-					delete l[i];
-					l[i] = new Literal;
+				for(int j = 0; j < 3; ++j){
+					delete l[j];
+					l[j] = new Literal;
 				}
+				if(tmp == ':') end = cursor;
+				break;
+			case '(':
 				break;
 			default:
 				error_score_unexpected_character(*i);
 
 		}
+		if(i == in.text.end()){
+			for(auto i : l) delete i;
+			return;
+		}
 	}
-	for(auto i : l) delete i;
 }
 
 void Literal::Val::add(const Char &ch){
@@ -158,8 +174,11 @@ void Literal::add(const Char &ch){
 	}
 }
 
-void wav(char*){
-	for(auto i : score){
+int samplerate = 44100;
+short channel = 2, bitdepth = 16;
+
+void wav(const char *out_filename){
+	if(verbosity > 0) for(auto i : score){
 		std::cout
 		<< i.start << "-" << i.end
 		<< " f" << i.freq
@@ -170,4 +189,48 @@ void wav(char*){
 		<< " r" << i.release
 		<< std::endl;
 	}
+
+	int out = open(out_filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	int iend = samplerate * end;
+	int filesize = bitdepth / 8 * channel * iend + 44;
+	ftruncate(out, filesize);
+	void *map = mmap(NULL, filesize, PROT_WRITE, MAP_SHARED, out, 0);
+	if(map == MAP_FAILED) return;
+
+	memcpy(map, "RIFF", 4);
+	((unsigned int *)map)[1] = filesize - 8;
+	memcpy((char *)map + 8, "WAVEfmt ", 8);
+	((unsigned int *)map)[4] = 16;
+	((unsigned short *)map)[10] = 1;
+	((unsigned short *)map)[11] = channel;
+	((unsigned int *)map)[6] = samplerate;
+	((unsigned int *)map)[7] = samplerate * bitdepth / 8 * channel;
+	((unsigned short *)map)[16] = channel * bitdepth / 8;
+	((unsigned short *)map)[17] = bitdepth;
+	memcpy((char *)map + 36, "data", 4);
+	((unsigned int *)map)[10] = filesize - 44;
+
+	double *data = new double[sizeof(double) * iend];
+
+	for(auto i : score){
+		const double t = 2 * M_PI * i.freq / samplerate;
+		const std::complex<double> a(cos(t), sin(t));
+		std::complex<double> x[2] = {1, 0};
+		int istart = i.start * samplerate;
+		int ilength = i.end * samplerate - istart;
+		for(int j = 0; istart + j < iend; ++j){
+			double tmp = x[j & 1].imag() * i.vel;
+			if(j > ilength){
+				tmp = 0;
+			}
+			data[istart + j] += tmp;
+			x[~j & 1] = x[j & 1] * a;
+		}
+	}
+
+	for(int i = 0; i < iend; ++i) for(int j = 0; j < channel; ++j) ((short *)map)[i * channel + j + 22] = data[i] * ((1 << 15) - 1);
+
+	delete[] data;
+	close(out);
+	munmap(map, filesize);
 }

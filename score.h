@@ -1,3 +1,3 @@
 class String;
 void addscore(const String &);
-void wav(char *);
+void wav(const char *);
