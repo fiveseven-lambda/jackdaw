@@ -1,5 +1,7 @@
 class Char;
 class String;
+void error_open(const char []);
+void error_open_twice(const char []);
 void error_unterminated_comment(const Char &);
 void error_unexpected_end_of_file(const Char &);
 void error_unexpected_character(const Char &);

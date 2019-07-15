@@ -68,7 +68,23 @@ void load(Source &source){
 void Sentence::run(){
 	if(command.match(std::string("message"))){
 		if(arguments.size() == 1){
-			std::cout << arguments[0];
+			for(auto i = arguments[0].text.begin(); i != arguments[0].text.end(); ++i){
+				if(*i == '\\'){
+					++i;
+					switch(*i){
+						case 'n':
+							std::cout << std::endl;
+							continue;
+						case '(':
+							std::cout << '{';
+							continue;
+						case ')':
+							std::cout << '}';
+							continue;
+					}
+				}
+				std::cout << *i;
+			}
 		}
 	}else if(command.match(std::string("define"))){
 		if(arguments.size() == 2){
@@ -86,10 +102,8 @@ void Sentence::run(){
 	}else if(command.match(std::string("import"))){
 		if(arguments.size() == 1){
 			char *header_filename = arguments[0].c_str();
-			Source *source = new Source(header_filename);
+			load(*(new Source(header_filename)));
 			delete[] header_filename;
-			load(*source);
-			// memory leaks ><
 		}
 	}else{
 		error_unknown_command(command);

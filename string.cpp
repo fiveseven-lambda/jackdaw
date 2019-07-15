@@ -15,8 +15,9 @@ void String::append(const String &str, const Char &ch){
 	}
 }
 char *String::c_str(){
-	char *ret = new char[text.size()];
+	char *ret = new char[text.size() + 1];
 	for(size_t i = 0; i < text.size(); ++i) ret[i] = text[i];
+	ret[text.size()] = '\0';
 	return ret;
 }
 std::ostream &operator<<(std::ostream &os, const String &str){
