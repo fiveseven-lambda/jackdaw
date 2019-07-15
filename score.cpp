@@ -163,6 +163,7 @@ void addscore(const String &in){
 					delete l[j];
 					l[j] = new Literal;
 				}
+				index = 0;
 				break;
 			case '(':
 				for(auto j = ++i;; ++i){
@@ -177,6 +178,8 @@ void addscore(const String &in){
 							set(tempo, arg, com);
 						}else if(com.match(std::string("velocity"))){
 							set(vel, arg, com);
+						}else if(com.match(std::string("tonic"))){
+							set(tonic, arg, com);
 						}else if(com.match(std::string("rhythm"))){
 							rhythm.lens.clear();
 							Literal *tmp = new Literal;
