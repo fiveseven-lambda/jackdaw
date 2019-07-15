@@ -65,9 +65,12 @@ void error_null_macro(const Char &ch){
 void error_invalid_literal(const Char &ch){
 	std::cerr << pos(ch) << " invalid literal \'" << ch << "\'" << std::endl;
 }
-void error_score_unexpected_character(const Char &ch){
-	std::cerr << pos(ch) << " unexpected character \'" << ch << "\'" << std::endl;
+void error_note_length_unspecified(){
+	std::cerr << "length of note unspecified" << std::endl;
 }
-void error_note_length_unspecified(const Char &ch){
-	std::cerr << pos(ch) << " length of note unspecified" << std::endl;
+void error_unclosed_bracket(const Char &ch){
+	std::cerr << pos(ch) << " unclosed bracket" << std::endl;
+}
+void error_tempo_unspecified(const String &str){
+	std::cerr << pos(str) << " tempo unspecified" << std::endl;
 }

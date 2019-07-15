@@ -31,5 +31,6 @@ void error_duplicate_macro(const String &, const String &);
 void error_null_macro(const Char &);
 void error_undefined_macro(const String &);
 void error_invalid_literal(const Char &);
-void error_score_unexpected_character(const Char &);
-void error_note_length_unspecified(const Char &);
+void error_note_length_unspecified();
+void error_unclosed_bracket(const Char &);
+void error_tempo_unspecified(const String &);

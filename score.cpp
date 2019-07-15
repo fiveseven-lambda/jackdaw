@@ -42,10 +42,12 @@ class Literal{
 			}
 		}
 		Val(): is(false), dec(0), val(0), point(nullptr) {}
+		Val(double val): is(true), dec(0), val(val), point(nullptr) {}
 		void add(const Char &);
 	} val[2];
 public:
 	Literal(): frac(false) {}
+	Literal(double val): frac(true), val{val} {}
 	void add(const Char&);
 	operator bool() const {
 		return frac || val[0];
@@ -59,22 +61,25 @@ void addscore(const String &in){
 	int index = 0;
 	std::array<Literal *, 7> l{new Literal, new Literal, new Literal, nullptr, nullptr, nullptr, nullptr};
 	double start = end, cursor = start;
-	std::array<double, 3> standard{440, 1, 1};
+	double tonic = 440;
+	double tempo = 60;
+	double vel = 1;
 
 	struct{
-		std::vector<double> lens;
+		std::vector<Literal> lens;
 		size_t i;
-		double next(const Char &ch){
+		Literal next(){
 			if(lens.empty()){
-				error_note_length_unspecified(ch);
-				return 0;
+				error_note_length_unspecified();
+				exit(-1);
+			}else{
+				Literal ret = lens[i];
+				++i;
+				if(i == lens.size()) i = 0;
+				return ret;
 			}
-			double ret = lens[i];
-			++i;
-			if(i == lens.size()) i = 0;
-			return ret;
 		}
-	} rhythm;
+	} rhythm { std::vector<Literal>(1, 1), 0 };
 
 	for(auto i = in.text.begin();; ++i){
 		char tmp = i != in.text.end() ? *i : ':';
@@ -120,12 +125,13 @@ void addscore(const String &in){
 				l[index]->add(*i);
 				break;
 			case ',':
+			case ';':
 			case ':':
 				score.push_back([&](){
-					double len = *l[1] ? l[1]->get(standard[1]) : rhythm.next(*i);
+					double len = (*l[1] ? *l[1] : rhythm.next()).get(60 / tempo);
 					Note ret;
-					ret.freq = *l[0] ? l[0]->get(standard[0]) : 0;
-					ret.vel = *l[2] ? l[2]->get(standard[2]) : 0;
+					ret.freq = *l[0] ? l[0]->get(tonic) : tonic;
+					ret.vel = *l[2] ? l[2]->get(vel) : vel;
 					ret.attack = l[3] && *l[3] ? l[3]->get(len) : 0;
 					ret.decay = l[4] && *l[4] ? l[4]->get(ret.vel) : 0;
 					ret.sustain = l[5] && *l[5] ? l[5]->get(len) : 1;
@@ -134,16 +140,61 @@ void addscore(const String &in){
 					ret.end = cursor += len;
 					return ret;
 				}());
+				if(end < cursor) end = cursor;
+				if(tmp == ':') start = end;
+				if(tmp == ':' || tmp == ';'){
+					cursor = start; 
+					rhythm.i = 0;
+				}
 				for(int j = 0; j < 3; ++j){
 					delete l[j];
 					l[j] = new Literal;
 				}
-				if(tmp == ':') end = cursor;
 				break;
 			case '(':
+				for(auto j = ++i;; ++i){
+					if(i == in.text.end()){
+						error_unclosed_bracket(*j);
+						break;
+					}else if(*i == ')'){
+						std::vector<Char>::const_iterator k;
+						for(k = j; isalpha(*k); ++k);
+						String com(std::vector<Char>(j, k)), arg(std::vector<Char>(k, i));
+						if(com.match(std::string("tempo"))){
+							Literal tmp;
+							for(auto l : arg.text){
+								if(('0' <= l && l <= '9') || l == '.' || l == '/'){
+									tmp.add(l);
+								}else if(!isspace(l)){
+									error_unexpected_character(l);
+								}
+							}
+							if(tmp) tempo = tmp.get(tempo);
+							else error_tempo_unspecified(com);
+						}else if(com.match(std::string("rhythm"))){
+							rhythm.lens.clear();
+							Literal *tmp = new Literal;
+							for(auto l : arg.text){
+								if(('0' <= l && l <= '9') || l == '.' || l == '/'){
+									tmp->add(l);
+								}else if(l == ','){
+									rhythm.lens.push_back(*tmp);
+									delete tmp;
+									tmp = new Literal;
+								}else if(!isspace(l)){
+									error_unexpected_character(l);
+								}
+							}
+							rhythm.lens.push_back(*tmp);
+							rhythm.i = 0;
+							delete tmp;
+						}
+						break;
+					}
+				}
 				break;
 			default:
-				error_score_unexpected_character(*i);
+				error_unexpected_character(*i);
 
 		}
 		if(i == in.text.end()){
