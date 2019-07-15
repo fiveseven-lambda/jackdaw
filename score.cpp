@@ -57,6 +57,19 @@ public:
 	}
 };
 
+void set(double &val, const String &str, const String &com){
+	Literal tmp;
+	for(auto l : str.text){
+		if(('0' <= l && l <= '9') || l == '.' || l == '/'){
+			tmp.add(l);
+		}else if(!isspace(l)){
+			error_unexpected_character(l);
+		}
+	}
+	if(tmp) val = tmp.get(val);
+	else error_value_unspecified(com);
+}
+
 void addscore(const String &in){
 	int index = 0;
 	std::array<Literal *, 7> l{new Literal, new Literal, new Literal, nullptr, nullptr, nullptr, nullptr};
@@ -161,16 +174,9 @@ void addscore(const String &in){
 						for(k = j; isalpha(*k); ++k);
 						String com(std::vector<Char>(j, k)), arg(std::vector<Char>(k, i));
 						if(com.match(std::string("tempo"))){
-							Literal tmp;
-							for(auto l : arg.text){
-								if(('0' <= l && l <= '9') || l == '.' || l == '/'){
-									tmp.add(l);
-								}else if(!isspace(l)){
-									error_unexpected_character(l);
-								}
-							}
-							if(tmp) tempo = tmp.get(tempo);
-							else error_tempo_unspecified(com);
+							set(tempo, arg, com);
+						}else if(com.match(std::string("velocity"))){
+							set(vel, arg, com);
 						}else if(com.match(std::string("rhythm"))){
 							rhythm.lens.clear();
 							Literal *tmp = new Literal;

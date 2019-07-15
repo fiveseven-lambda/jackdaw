@@ -33,4 +33,4 @@ void error_undefined_macro(const String &);
 void error_invalid_literal(const Char &);
 void error_note_length_unspecified();
 void error_unclosed_bracket(const Char &);
-void error_tempo_unspecified(const String &);
+void error_value_unspecified(const String &);

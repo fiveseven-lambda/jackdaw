@@ -71,6 +71,6 @@ void error_note_length_unspecified(){
 void error_unclosed_bracket(const Char &ch){
 	std::cerr << pos(ch) << " unclosed bracket" << std::endl;
 }
-void error_tempo_unspecified(const String &str){
-	std::cerr << pos(str) << " tempo unspecified" << std::endl;
+void error_value_unspecified(const String &str){
+	std::cerr << pos(str) << " value unspecified" << std::endl;
 }
