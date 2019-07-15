@@ -1,8 +1,26 @@
 #include <iostream>
 #include "char.h"
 #include "string.h"
-#include "pos.h"
 #include "errmsg.h"
+
+template<class T>
+Pos<T> pos(const T &obj){
+	return Pos<T>(obj);
+}
+
+std::ostream &operator<<(std::ostream &os, const Pos<Char> &pos){
+	os << "[";
+	for(auto i = pos.ch.pos.begin(); i != pos.ch.pos.end(); ++i){
+		if(i != pos.ch.pos.begin()) os << "<";
+		os << i->filename << ":" << i->line << "," << i->pos;
+	}
+	os << "]";
+	return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const Pos<String> &pos){
+	return os << ::pos(pos.str.text.front()) << "-" << ::pos(pos.str.text.back());
+}
 
 void error_open(const char filename[]){
 	std::cerr << "cannot open file \"" << filename << "\"" << std::endl;

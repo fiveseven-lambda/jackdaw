@@ -1,8 +1,6 @@
 #include "char.h"
 #include "string.h"
 
-#include "pos.h"
-
 bool String::match(const std::string &str) const{
 	if(text.size() != str.size()) return false;
 	for(size_t i = 0; i < text.size(); ++i) if(text[i] != str[i]) return false;
