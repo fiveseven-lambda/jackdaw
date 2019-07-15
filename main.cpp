@@ -14,17 +14,22 @@ int main(int argc, char *argv[]){
 			{
 				.name = "out",
 				.has_arg = required_argument,
+				.flag = NULL,
 				.val = 'o'
 			},{
 				.name = "version",
 				.has_arg = no_argument,
+				.flag = NULL,
 				.val = 'v'
 			},{
 				.name = "verbose",
 				.has_arg = no_argument,
+				.flag = NULL,
+				.val = 0
 			}, {
 				.name = "help",
 				.has_arg = no_argument,
+				.flag = NULL,
 				.val = 'h'
 			}
 		};
@@ -53,4 +58,6 @@ int main(int argc, char *argv[]){
 	for(;optind < argc; ++optind){
 		load(*(new Source(argv[optind])));
 	}
+
+	wav(NULL);
 }

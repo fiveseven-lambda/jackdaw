@@ -65,3 +65,9 @@ void error_null_macro(const Char &ch){
 void error_invalid_literal(const Char &ch){
 	std::cerr << pos(ch) << " invalid literal \'" << ch << "\'" << std::endl;
 }
+void error_score_unexpected_character(const Char &ch){
+	std::cerr << pos(ch) << " unexpected character \'" << ch << "\'" << std::endl;
+}
+void error_note_length_unspecified(const Char &ch){
+	std::cerr << pos(ch) << " length of note unspecified" << std::endl;
+}
