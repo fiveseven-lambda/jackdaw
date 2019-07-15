@@ -89,7 +89,7 @@ void Sentence::run(){
 				}
 				std::cout << *i;
 			}
-		}
+		}else error_command_arguments(command, 1);
 	}else if(command.match(std::string("define"))){
 		if(arguments.size() == 2){
 			if(arguments[0].text.empty()){
@@ -102,17 +102,17 @@ void Sentence::run(){
 					error_duplicate_macro(it->first, arguments[0]);
 				}
 			}
-		}
+		}else error_command_arguments(command, 2);
 	}else if(command.match(std::string("score"))){
 		if(arguments.size() == 1){
 			addscore(arguments[0]);
-		}
+		}else error_command_arguments(command, 1);
 	}else if(command.match(std::string("import"))){
 		if(arguments.size() == 1){
 			char *header_filename = arguments[0].c_str();
 			load(*(new Source(header_filename)));
 			delete[] header_filename;
-		}
+		}else error_command_arguments(command, 1);
 	}else{
 		error_unknown_command(command);
 	}

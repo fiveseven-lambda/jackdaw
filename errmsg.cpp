@@ -44,6 +44,11 @@ void error_unexpected_character(const Char &ch){
 void error_unknown_command(const String &str){
 	std::cerr << pos(str) << " unknown command \"" << str << "\"" << std::endl;
 }
+void error_command_arguments(const String &str, int n){
+	std::cerr << pos(str) << " command \"" << str << "\" takes " << n << " argument";
+	if(n != 1) std::cerr << 's';
+	std::cerr << std::endl;
+}
 void error_undefined_macro(const String &str){
 	std::cerr << pos(str) << " undefined macro \"" << str << "\"" << std::endl;
 }

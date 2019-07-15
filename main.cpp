@@ -2,6 +2,7 @@
 #include "char.h"
 #include "source.h"
 #include "load.h"
+#include "score.h"
 
 int verbosity;
 
