@@ -62,3 +62,6 @@ void error_null_macro_defined(const Char &ch){
 void error_null_macro(const Char &ch){
 	std::cerr << pos(ch) << " you cannot use macro {}" << std::endl;
 }
+void error_invalid_literal(const Char &ch){
+	std::cerr << pos(ch) << " invalid literal \'" << ch << "\'" << std::endl;
+}
