@@ -39,11 +39,15 @@ void load(Source &source){
 						if(tmp == '}') break;
 						else buf.text.push_back(tmp);
 					}
-					auto it = macros.find(buf);
-					if(it == macros.end()){
-						error_undefined_macro(buf);
+					if(buf.text.empty()){
+						error_null_macro(tmp);
 					}else{
-						argument.append(it->second, tmp);
+						auto it = macros.find(buf);
+						if(it == macros.end()){
+							error_undefined_macro(buf);
+						}else{
+							argument.append(it->second, tmp);
+						}
 					}
 				}else{
 					argument.text.push_back(tmp);
@@ -88,11 +92,15 @@ void Sentence::run(){
 		}
 	}else if(command.match(std::string("define"))){
 		if(arguments.size() == 2){
-			auto it = macros.find(arguments[0]);
-			if(it == macros.end()){
-				macros.insert(std::make_pair(arguments[0], arguments[1]));
+			if(arguments[0].text.empty()){
+				error_null_macro_defined(command.text.front());
 			}else{
-				error_duplicate_macro(it->first, arguments[0]);
+				auto it = macros.find(arguments[0]);
+				if(it == macros.end()){
+					macros.insert(std::make_pair(arguments[0], arguments[1]));
+				}else{
+					error_duplicate_macro(it->first, arguments[0]);
+				}
 			}
 		}
 	}else if(command.match(std::string("score"))){

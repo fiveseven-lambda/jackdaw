@@ -19,7 +19,7 @@ std::ostream &operator<<(std::ostream &os, const Pos<Char> &pos){
 }
 
 std::ostream &operator<<(std::ostream &os, const Pos<String> &pos){
-	return os << ::pos(pos.str.text.front()) << "-" << ::pos(pos.str.text.back());
+	return pos.str.text.empty() ? os << "[unknown]" : os << ::pos(pos.str.text.front()) << "-" << ::pos(pos.str.text.back());
 }
 
 void error_open(const char filename[]){
@@ -49,4 +49,11 @@ void error_undefined_macro(const String &str){
 }
 void error_duplicate_macro(const String &l, const String &r){
 	std::cerr << pos(r) << " macro \"" << r << "\" is already defined at " << pos(l) << std::endl;
+}
+
+void error_null_macro_defined(const Char &ch){
+	std::cerr << pos(ch) << " you cannot define macro {}" << std::endl;
+}
+void error_null_macro(const Char &ch){
+	std::cerr << pos(ch) << " you cannot use macro {}" << std::endl;
 }
