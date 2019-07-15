@@ -7,7 +7,7 @@ int verbosity;
 
 int main(int argc, char *argv[]){
 	const char *out_filename;
-	for(;;){
+	[&]{ for(;;){
 		int long_optind;
 		static struct option long_options[] = {
 			{
@@ -27,9 +27,9 @@ int main(int argc, char *argv[]){
 				.val = 'h'
 			}
 		};
-		int c = getopt_long(argc, argv, "o:vh", long_options, &long_optind);
-		if(c == -1) break;
-		switch(c){
+		switch(getopt_long(argc, argv, "o:vh", long_options, &long_optind)){
+			case -1:
+				return;
 			case 0:
 				switch(long_optind){
 					case 2:
@@ -41,13 +41,13 @@ int main(int argc, char *argv[]){
 				out_filename = optarg;
 				break;
 			case 'v':
-				puts("jackdaw version ");
-				return 0;
+				puts("jackdaw version 2.5");
+				exit(0);
 			case 'h':
 				puts("usage: jackdaw [-v --version] [-h --help] [-o --out <filename>] [--verbose]");
-				return 0;
+				exit(0);
 		}
-	}
+	} }();
 
 	for(;optind < argc; ++optind){
 		load(*(new Source(argv[optind])));
