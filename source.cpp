@@ -64,3 +64,4 @@ Char Source::get(bool peek){
 	buf_peek.isbuf = peek;
 	return buf_peek.buf;
 }
+
