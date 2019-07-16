@@ -277,11 +277,27 @@ void wav(const char *out_filename){
 		const std::complex<double> a(cos(t), sin(t));
 		std::complex<double> x[2] = {1, 0};
 		int istart = i.start * samplerate;
+		int iattack = i.attack * samplerate;
 		int ilength = i.end * samplerate - istart;
+		int k = iattack ? 0 : 1;
 		for(int j = 0; istart + j < iend; ++j){
 			double tmp = x[j & 1].imag() * i.vel;
-			if(j > ilength){
-				tmp = 0;
+			switch(k){
+				case 0:
+					tmp *= (double)j / samplerate / i.attack;
+					if(j == iattack){
+						k = 1;
+					}
+					break;
+				case 2:
+					tmp *= exp(- (((double)j / samplerate) - i.end + i.start) / i.release);
+					[[fallthrough]];
+				case 1:
+					tmp *= i.sustain + (1 - i.sustain) * exp(- (((double)j / samplerate) - i.attack) / i.decay);
+					if(j == ilength){
+						k = 2;
+					}
+					break;
 			}
 			data[istart + j] += tmp;
 			x[~j & 1] = x[j & 1] * a;
