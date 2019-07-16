@@ -294,11 +294,9 @@ void wav(const char *out_filename){
 					[[fallthrough]];
 				case 1:
 					tmp *= i.sustain + (1 - i.sustain) * exp(- (((double)j / samplerate) - i.attack) / i.decay);
-					if(j == ilength){
-						k = 2;
-					}
 					break;
 			}
+			if(j == ilength) k = 2;
 			data[istart + j] += tmp;
 			x[~j & 1] = x[j & 1] * a;
 		}
